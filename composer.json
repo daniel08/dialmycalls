@@ -1,0 +1,11 @@
+{
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/dialmycalls/php-sdk-v2.git"
+    }
+  ],
+  "require": {
+    "dialmycalls/php-sdk-v2": "*@dev"
+  }
+}
