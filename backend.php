@@ -9,21 +9,33 @@ $api_instance = new \DialMyCalls\Api\Contacts();
 if( isset($_POST['addContact']) ){
     
     $createContactParameters = new \DialMyCalls\Models\CreateContactParameters(); // \DialMyCalls\Models\CreateContactParameters | Request body
+
     
-    $createContactParameters->setFirstname(cleanRequired('fname'));
-    $createContactParameters->setLastname(cleanRequired('lname'));
-    $createContactParameters->setPhone(cleanPhone('phone'));
-    $createContactParameters->setEmail(cleanEmail('email'));
 
     try {
+        $createContactParameters->setFirstname(cleanRequired('firstname'));
+        $createContactParameters->setLastname(cleanRequired('lastname'));
+        $createContactParameters->setPhone(cleanPhone('phone'));
+        $createContactParameters->setEmail(cleanEmail('email'));
+        
         $result = $api_instance->createContact($createContactParameters);
         header('Content-Type: application/json');
         echo json_encode($result);
         exit();
-    } catch (Exception $e) {
-        echo 'Exception when calling Contacts->createContact: ', $e->getMessage(), PHP_EOL;
+    }
+    catch (Exception $e) {
+        $response = ['status' => 'error', 'msg' => ''];
+        if( $e instanceof DialMyCalls\ApiException){
+            $response['msg'] = 'An error occured: '. $e->getResponseBody()->results->error->message. PHP_EOL;
+        }else{
+            $response['msg'] = 'An error occured: '. $e->getMessage(). PHP_EOL;
+        }
+        header('Content-Type: application/json');
+        echo json_encode($response);
+        exit();
     }
 
+   
 }
 
 if( isset($_GET['getContacts']) ){
@@ -39,7 +51,7 @@ if( isset($_GET['getContacts']) ){
 
 function cleanRequired($key){
     if( empty($_POST[$key]) OR $_POST[$key] == '' ){
-        return '';
+        throw new Exception("Field $key is required.");
     }else{
         return $_POST[$key];
     }
@@ -52,10 +64,11 @@ function cleanEmail($key){
             return trim($value);
         }
         else{
-            return '';
+            throw new Exception("$value is not a valid email.");
+            return false;
         }
     }else{
-        return '';
+        return false;
     }
 }
 
@@ -66,10 +79,11 @@ function cleanPhone($key){
             return $clean;
         }
         else{
-            return '';
+            throw new Exception("$value is not a valid phone number.");
+            return false;
         }
     }else{
-        return '';
+        return false;
     }
 }
 

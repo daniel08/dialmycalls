@@ -26,6 +26,13 @@ $('form').on('submit', function(e){
 
 $('#addContactForm').on('submitted', function(e, data){
     console.log(data);
+    if( data.hasOwnProperty('status') && data.status == 'error' ){
+        toastr.error(data.msg);
+    }
+    else if( data.hasOwnProperty('meta') && data.meta.result == 'success' ){
+        toastr.success('Contact created successfully!');
+        $(this).find('input[type=text]').val('');
+    }
     getContacts();
 });
 
@@ -46,6 +53,7 @@ function getContacts(){
                 $('<tr><td>'+r.firstname+'</td><td>'+r.lastname+'</td><td>'+r.email+'</td><td>'+r.phone+'</td></tr>').appendTo(tblBody);
             }
         }
+
     });
 }
 
